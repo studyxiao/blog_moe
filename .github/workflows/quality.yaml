@@ -1,0 +1,31 @@
+name: CI - Quality Check
+on:
+  push:
+    branches:
+      - main
+  # 允许手动触发
+  workflow_dispatch:
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - 3.11
+        pdm-version:
+          - 2.7.4
+        os:
+          - ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Set up PDM (with Python)
+        uses: pdm-project/setup-pdm@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          version: ${{ matrix.pdm-version }}
+      - name: Install dependencies
+        run: pdm sync  # 安装依赖，要不 pyright 找不到依赖
+      - name: Check by pre-commit
+        uses: pre-commit/action@v3.0.0

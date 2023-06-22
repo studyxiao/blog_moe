@@ -1,0 +1,134 @@
+
+[project]
+name = ""
+version = ""
+description = ""
+authors = [{ name = "studyxiao", email = "studyxiao@163.com" }]
+dependencies = [
+  "flask>=2.3.2",
+  "python-dotenv>=1.0.0",
+  "redis>=4.5.5",
+  "celery>=5.3.1",
+  "sqlalchemy>=2.0.16",
+  "gunicorn>=20.1.0",
+  "gevent>=22.10.2",
+  "pyjwt>=2.7.0",
+  "pymysql>=1.0.3",
+  "pydantic>=1.10.9",
+  "structlog>=23.1.0",
+  "theine>=0.4.0",
+  "flower>=2.0.0",
+  "websockets>=11.0.3",
+  "meilisearch>=0.28.0",
+  "tencentcloud-sdk-python>=3.0.919",
+]
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[tool.pdm.dev-dependencies]
+dev = [
+  "black>=23.3.0",
+  "ruff>=0.0.274",
+  "rich>=13.4.2",
+  "watchfiles>=0.19.0",
+  "celery-types>=0.18.0",
+  "pre-commit>=3.3.3",
+  "commitizen>=1.0.0",
+]
+
+doc = [
+  "mkdocs>=1.4.3",
+  "mkdocs-material>=9.1.16",
+  "mkdocstrings[python]>=0.22.0",
+]
+[tool.black]
+# https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#command-line-options
+line-length = 120
+# required-version = "23.3.0"
+# 23.1.0 之后自动推断 python 版本
+target-version = ["py311"]
+
+[tool.ruff]
+required-version = "0.0.274"
+line-length = 120
+# 自动推断 python 版本
+target-version = "py311"
+
+select = [
+  "A",   # flake8-builtins
+  "ANN",
+  "B",   # flake8-bugbear
+  "BLE", # flake8-blind-except
+  "C4",  # flake8-comprehensions
+  "C90", # mccabe
+  "D",   # pydocstyle
+  "DJ",  # flake8-django
+  "DTZ", # flake8-datetimez
+  "E",   # pycodestyle errors
+  "ERA", # eradicate
+  "EXE", # flake8-executable
+  "F",   # pyflakes
+  "G",   # flake8-logging-format
+  "I",   # isort
+  "ICN", # flake8-import-conventions
+  "ISC", # flake8-implicit-str-concat
+  "N",   # pep8-naming
+  "PIE", # flake8-pie
+  "PLC", # pylint - convention
+  "PLE", # pylint - error
+  "PLW", # pylint - warning
+  "PT",
+  "PTH", # flake8-use-pathlib
+  "Q",   # flake8-quotes
+  "RET", # flake8-return
+  "RUF", # Ruff-specific rules
+  "S",   # flake8-bandit
+  "SIM", # flake8-simplify
+  "T10", # flake8-debugger
+  "T20", # flake8-print
+  "TCH", # flake8-type-checking
+  "TID", # flake8-tidy-imports
+  "UP",  # pyupgrade
+  "W",   # pycodestyle - warning
+  "YTT", # flake8-2020
+]
+ignore = [
+  "D100",   # pydocstyle - missing docstring in public module
+  "D101",   # pydocstyle - missing docstring in public class
+  "D102",   # pydocstyle - missing docstring in public method
+  "D103",   # pydocstyle - missing docstring in public function
+  "D104",   # pydocstyle - missing docstring in public package
+  "D105",   # pydocstyle - missing docstring in magic method
+  "D106",   # pydocstyle - missing docstring in public nested class
+  "D107",   # pydocstyle - missing docstring in __init__
+  'D211',
+  'D213',
+  'ANN101',
+  'ANN102',
+  'ANN401',
+  'N818',
+]
+respect-gitignore = true
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.pydocstyle]
+# Use Google-style docstrings.
+convention = "google"
+
+[tool.ruff.flake8-builtins]
+builtins-ignorelist = ["id", "set", "type"]
+
+[tool.ruff.mccabe]
+max-complexity = 15
+
+[tool.pyright]
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md#sample-pyprojecttoml-file
+venvPath = "."
+venv = ".venv"
+ignore = ["task", "app/core/auth/permission.py"] # 禁止检查文件
+reportMissingTypeStubs = false                   # 禁止报告缺少的类型存根文件
+reportUnknownMemberType = false                  # 禁止报告未知成员类型
+reportUnknownVariableType = false                # 禁止报告未知变量类型
+reportUnknownArgumentType = false                # 禁止报告未知参数类型
