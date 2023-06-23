@@ -11,3 +11,8 @@
   - [ ] dependencies version
   - [ ] [tool.black] required-version
   - [ ] [tool.ruff] required-version
+- [ ] .github/workflows
+  - [ ] [quality.yml] python-version、pdm-version
+  - [ ] [doc.yml] python-version、pdm-version
+- [ ] .pre-commit-config.yaml
+  - [ ] dependencies version
