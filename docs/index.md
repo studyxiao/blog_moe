@@ -16,7 +16,7 @@
 
 ## 第二章 项目概述
 
-![Alt text](image.png)
+![Alt text](./images/image.png)
 
 ### 2.1 项目描述
 
