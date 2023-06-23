@@ -28,7 +28,7 @@ title: 数据模型
 | create_time | datetime     |      |      | now    | 创建时间                                           |
 | update_time | datetime     |      |      | now    | 修改时间                                           |
 
-### 角色表（roles）
+### 角色表（role）
 
 | 字段名      | 类型         | 可空 | 唯一 | 默认值 | 备注     |
 | ----------- | ------------ | ---- | ---- | ------ | -------- |
@@ -60,23 +60,23 @@ title: 数据模型
 
 ### 文章表（article）
 
-| 字段名        | 类型         | 可空 | 唯一 | 默认值            | 备注                               |
-| ------------- | ------------ | ---- | ---- | ----------------- | ---------------------------------- |
-| id            | bigint       |      | 是   |                   | 文章ID                             |
-| title         | varchar(128) |      | 是   |                   | 标题                               |
-| summary       | varchar(255) | 是   |      |                   | 摘要                               |
-| content       | longtext     |      |      |                   | 内容                               |
-| cover         | varchar(255) |      |      | article/cover.png | 封面                               |
-| category_id   | int          | 是   |      | null              | 分类 ID，null 表示默认分类         |
-| source_id     | int          |      |      |                   | 来源 ID：1-原创，2-转载，3-翻译    |
-| publish       | tinyint      |      |      | 1                 | 1-公开，2-登录可见，3-仅自己可见   |
-| status        | int          |      |      |                   | 1-正常，2-拉黑，3-推荐，管理员操作 |
-| sort          | tinyint      |      |      | 1                 | 排序 ，管理员操作                  |
-| allow_comment | tinyint      |      |      | 1                 | 是否开启评论：1-开启，0-关闭       |
-| user_id       | bigint       |      |      |                   | 作者 id                            |
-| create_time   | datetime     |      |      | now               | 创建时间                           |
-| update_time   | datetime     |      |      | now               | 修改时间                           |
-| delete_time   | datetime     | 是   |      | null              | 删除时间                           |
+| 字段名        | 类型         | 可空 | 唯一 | 默认值            | 备注                                     |
+| ------------- | ------------ | ---- | ---- | ----------------- | ---------------------------------------- |
+| id            | bigint       |      | 是   |                   | 文章ID                                   |
+| title         | varchar(128) |      | 是   |                   | 标题                                     |
+| summary       | varchar(255) | 是   |      |                   | 摘要                                     |
+| content       | longtext     |      |      |                   | 内容                                     |
+| cover         | varchar(255) |      |      | article/cover.png | 封面                                     |
+| category_id   | int          | 是   |      | null              | 分类 ID，null 表示默认分类               |
+| source        | int          |      |      |                   | 来源 ID：1-原创，2-转载，3-翻译          |
+| publish       | tinyint      |      |      | 1                 | 1-公开，2-登录可见，3-仅自己可见         |
+| status        | int          |      |      |                   | 1可见, 0-不可见,2-作者置顶, 3-管理员置顶 |
+| sort          | tinyint      |      |      | 1                 | 排序 ，管理员操作                        |
+| allow_comment | tinyint      |      |      | 1                 | 是否开启评论：1-开启，0-关闭             |
+| user_id       | bigint       |      |      |                   | 作者 id                                  |
+| create_time   | datetime     |      |      | now               | 创建时间                                 |
+| update_time   | datetime     |      |      | now               | 修改时间                                 |
+| delete_time   | datetime     | 是   |      | null              | 删除时间                                 |
 
 ### 文章点赞表（article_like）
 
@@ -106,7 +106,7 @@ title: 数据模型
 
 article_id 和 tag_id 联合唯一。
 
-### 分类表（categorys）
+### 分类表（category）
 
 | 字段名      | 类型         | 可空 | 唯一 | 默认值  | 备注                       |
 | ----------- | ------------ | ---- | ---- | ------- | -------------------------- |
@@ -120,7 +120,7 @@ article_id 和 tag_id 联合唯一。
 | update_time | datetime     | 否   | 否   | now     | 修改时间                   |
 | is_deleted  | tinyint      | 否   | 否   | 0       | 是否删除：0-没有，1-已删除 |
 
-### 评论表（comments）
+### 评论表（comment）
 
 | 字段名       | 类型         | 可空 | 唯一 | 默认值 | 备注                                                     |
 | ------------ | ------------ | ---- | ---- | ------ | -------------------------------------------------------- |
@@ -131,9 +131,9 @@ article_id 和 tag_id 联合唯一。
 | root_id      | int          |      |      | 0      | 0表示根评论，不为0表示回复所对应的最顶层的评论（根评论） |
 | parent_id    | int          |      |      | 0      | 0也表示这是根评论，不为0表示回复的对象                   |
 | replay_count | int          |      |      | 0      | 如果是 root, 需要统计它的回复数量                        |
-| ip           | varchar(16)  |      |      |        | 评论者 IP                                                |
 | like_count   | int          |      |      | 0      | 点赞数                                                   |
-| status       | tinyint      |      |      | 1      | 状态：1-正常，2-隐藏，3-置顶，管理员操作                 |
+| ip           | varchar(16)  |      |      |        | 评论者 IP                                                |
+| status       | tinyint      |      |      | 1      | 状态：1-正常，0-隐藏，2-置顶，管理员操作                 |
 | create_time  | datetime     |      |      | now    | 创建时间                                                 |
 | is_deleted   | tinyint      |      |      | 1      | 是否删除：1-没有，0-已删除                               |
 
@@ -154,6 +154,5 @@ article_id 和 tag_id 联合唯一。
 | to_user_id   | bigint       |      |      |        | 用户 ID             |
 | from_user_id | bigint       |      |      |        | 通知来源用户 ID     |
 | content      | varchar(255) |      |      |        | 通知内容            |
-| type         | tinyint      |      |      |        | 通知类型            |
 | status       | tinyint      |      |      |        | 状态, 0-未读 1-已读 |
 | create_time  | datetime     |      |      | now    | 创建时间            |
