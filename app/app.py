@@ -1,20 +1,16 @@
-from flask import Flask
+from flask import Blueprint, Flask
 
 from app.core.log import Logger
 from config import config
+
+from .user.api import bp as user_bp
 
 app = Flask(__name__)
 
 Logger(app)
 app.config.from_object(config)
 
+api_bp = Blueprint("api", __name__, url_prefix="/api/v1")
+api_bp.register_blueprint(user_bp)
 
-@app.get("/")
-def index() -> str:
-    from task.example import send_email, send_sms, send_sms2
-
-    for _ in range(10):
-        send_email.apply_async(args=("hello",))
-        send_sms.apply_async(args=("hello",))
-        send_sms2.apply_async(args=("hello",))
-    return "Hello World!"
+app.register_blueprint(api_bp)

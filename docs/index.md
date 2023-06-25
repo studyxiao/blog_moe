@@ -9,11 +9,10 @@
   - 缓存 Redis
   - COS
   - 邮件
-  - 短信
+  - 短信SMS
 
 ## 第二章 项目概述
 
-![Alt text](./images/image.png)
 
 ### 2.1 项目描述
 

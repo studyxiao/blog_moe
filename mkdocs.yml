@@ -3,6 +3,12 @@ site_name: P-Blog
 repo_url: https://github.com/studyxiao/pmoe
 repo_name: studyxiao/pmoe
 
+nav:
+  - Home: index.md
+  - 数据模型: model.md
+  - API: api.md
+  - Flask 自定义命令: cli.md
+
 theme:
   name: "material"
   logo: ""
@@ -40,6 +46,7 @@ theme:
           - en
         separator: '[\s\u200b\-]'
     - glightbox
+
 markdown_extensions:
   - admonition
   - pymdownx.details
