@@ -17,9 +17,9 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 @validate
 def get_code(query: CodeSchema) -> ResponseReturnValue:
     code = generate_digit_code()
-    ttl = timedelta(minutes=5)
+    ttl = timedelta(minutes=1)
     # redis 存储验证码
     CodeRedis(query.mobile, query.cate).set(code, ttl)
     # sms 发送验证码
-    send_sms.delay(query.mobile, code, ttl)
+    send_sms.delay(query.mobile, code, int(ttl.total_seconds()))
     return {"message": "验证码发送成功"}

@@ -31,7 +31,7 @@ class TaskConfig(BaseSettings):
 
     #### 全局
     timezone: str = Field(default="Asia/Shanghai", env="TZ")
-    enable_utc: bool = True
+    # option enable_utc: bool = True
 
     #### task
     # 默认 json
