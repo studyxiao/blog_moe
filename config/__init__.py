@@ -97,8 +97,8 @@ class BaseConfig(BaseSettings):
     WEB_PORT: int = 5000
 
     # JWT
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=2)
-    JWT_TOKEN_URL: str = "/api/v1/auth/login"
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_TOKEN_URL: str = "/api/v1/user/login"
     JWT_ALGORITHM: str = "HS256"
 
     # DB

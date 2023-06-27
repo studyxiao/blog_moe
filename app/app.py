@@ -2,6 +2,7 @@ from flask import Blueprint, Flask
 from flask.typing import ResponseReturnValue
 from werkzeug.exceptions import HTTPException
 
+from app.core.auth import Auth
 from app.core.exception import APIException
 from app.core.log import Logger
 from app.core.model import db
@@ -17,6 +18,7 @@ app.config.from_object(config)
 # 插件
 Logger(app)
 db.init_app(app)
+Auth(app)
 
 
 def error_handler_http(error: HTTPException) -> ResponseReturnValue:

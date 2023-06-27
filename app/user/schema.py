@@ -109,7 +109,7 @@ class RegisterSchema(BaseModel):
         return val
 
 
-class Forget(BaseModel):
+class ForgetSchema(BaseModel):
     mobile: str
     password: str
     password2: str
@@ -142,17 +142,6 @@ class Forget(BaseModel):
         if "mobile" in values and v != CodeRedis(values["mobile"], CodeCate.FORGET).get():
             raise ValueError("验证码错误")
         return v
-
-
-class LoginByMobile(BaseModel):
-    mobile: str
-    cate: int
-    certificate: str
-
-    @validator("mobile")
-    def check_mobile(cls, val: str) -> str:
-        _check_mobile_re(val)
-        return val
 
 
 class Reset(BaseModel):
