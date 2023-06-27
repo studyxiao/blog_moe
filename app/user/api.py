@@ -4,15 +4,15 @@ from flask import Blueprint
 from flask.typing import ResponseReturnValue
 from sqlalchemy import or_
 
-from app.core.auth.model import User
-from app.core.exception import Created, ParameterException, Success
+from app.core.auth import User, current_user, login_required
+from app.core.exception import Created, ParameterException, Success, Updated
 from app.core.schema import validate
 from app.user.model import CodeRedis, clear_mobile_cache, clear_name_cache
 from app.util.const import CodeCate
 from app.util.util import generate_digit_code
 from sms.tasks import send_sms
 
-from .schema import CodeSchema, ForgetSchema, NameSchema, RegisterSchema
+from .schema import CodeSchema, ForgetSchema, NameSchema, RegisterSchema, ResetSchema
 
 bp = Blueprint("user", __name__, url_prefix="/user")
 
@@ -74,4 +74,20 @@ def forget(body: ForgetSchema) -> ResponseReturnValue:
     user.set_password(body.password)
     user.save()
 
-    return Success(message="修改成功")
+    return Updated(message="修改成功")
+
+
+@bp.post("/reset")
+@login_required
+@validate
+def reset(body: ResetSchema) -> ResponseReturnValue:
+    """修改密码."""
+    user = current_user.get()
+    if user is None:
+        raise ParameterException(message="用户不存在")
+    if not user.check_password(body.old_password):
+        raise ParameterException(message="旧密码错误")
+    user.set_password(body.password)
+    user.save()
+
+    return Updated(message="修改成功")

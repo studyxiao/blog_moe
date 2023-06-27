@@ -144,7 +144,7 @@ class ForgetSchema(BaseModel):
         return v
 
 
-class Reset(BaseModel):
+class ResetSchema(BaseModel):
     old_password: str
     password: str
     password2: str
