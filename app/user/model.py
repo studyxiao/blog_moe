@@ -71,7 +71,7 @@ def name_existed(name: str) -> bool:
     会先从缓存中查询,如果缓存中不存在则从数据库中查询,并将查询结果缓存.
     """
     node = NameNode(name)
-    model = cache.get(node)
+    model = cache.get(node, load=False)
     if model is None:
         return False
     return True
@@ -106,7 +106,7 @@ class MobileNode(Node[MobileModel]):
 def mobile_existed(mobile: str) -> bool:
     """检查手机号是否已经注册."""
     node = MobileNode(mobile)
-    model = cache.get(node)
+    model = cache.get(node, load=False)
     if model is None:
         return False
     return True

@@ -49,7 +49,7 @@ class CodeSchema(BaseModel):
         return val
 
 
-class CheckName(BaseModel):
+class NameSchema(BaseModel):
     username: str
 
     @validator("username")
@@ -65,7 +65,7 @@ class ValidName(BaseModel):
     is_valid: bool = True
 
 
-class Register(BaseModel):
+class RegisterSchema(BaseModel):
     mobile: str
     password: str
     password2: str
