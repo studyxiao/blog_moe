@@ -91,3 +91,12 @@ def reset(body: ResetSchema) -> ResponseReturnValue:
     user.save()
 
     return Updated(message="修改成功")
+
+
+@bp.get("/<int:user_id>/info")
+def info(user_id: int) -> ResponseReturnValue:
+    """获取用户信息."""
+    user = User.get_by_attr(User.id == user_id, User.is_deleted == 0)
+    if user is None:
+        raise ParameterException(message="用户不存在")
+    return user.to_dict(exclude_field={"password", "is_deleted", "status"})
