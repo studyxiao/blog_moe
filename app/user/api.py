@@ -12,7 +12,7 @@ from app.util.const import CodeCate
 from app.util.util import generate_digit_code
 from sms.tasks import send_sms
 
-from .schema import CodeSchema, ForgetSchema, NameSchema, RegisterSchema, ResetSchema
+from .schema import ChangeUserSchema, CodeSchema, ForgetSchema, NameSchema, RegisterSchema, ResetSchema
 
 bp = Blueprint("user", __name__, url_prefix="/user")
 
@@ -100,3 +100,19 @@ def info(user_id: int) -> ResponseReturnValue:
     if user is None:
         raise ParameterException(message="用户不存在")
     return user.to_dict(exclude_field={"password", "is_deleted", "status"})
+
+
+@bp.put("/info")
+@login_required
+@validate
+def update_info(body: ChangeUserSchema) -> ResponseReturnValue:
+    """修改用户信息."""
+    user = current_user.get()
+    if user is None:
+        raise ParameterException(message="用户不存在")
+
+    # 如果修改用户名,需要删除用户名缓存
+    if body.username and body.username != user.username:
+        clear_name_cache(user.username)
+    user.update_by_self(body.dict(exclude_none=True))
+    return Updated(message="修改成功")

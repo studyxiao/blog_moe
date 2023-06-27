@@ -1,9 +1,10 @@
 import re
-from datetime import datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from pydantic import BaseModel, validator
 
+from app.core.auth import current_user
 from app.core.exception import ParameterException
 from app.util.const import CodeCate
 
@@ -16,7 +17,7 @@ username_pattern = r"^[a-zA-z\u4e00-\u9fa5][0-9a-zA-z\u4e00-\u9fa5]{3,11}"
 # 密码: 6-20位,包含大小写字母、数字和特殊符号
 password_pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@!,\.*?&%])[a-zA-Z0-9@!,\.*?&%]{6,20}$"  # noqa: S105
 # 电子邮箱
-email_pattern = r"^\W+([-+.]\W+)*@\W+([-.]\W+)*.\W+([-.]\W+)*$"
+email_pattern = r"^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$"
 
 
 def _check_mobile_re(val: str) -> None:
@@ -168,19 +169,26 @@ class ResetSchema(BaseModel):
         return val
 
 
-class ChangeUser(BaseModel):
-    username: str
+class ChangeUserSchema(BaseModel):
+    username: str | None
     gender: int | None
-    birthday: datetime | None
     email: str | None
+    birthday: date | None
     address: str | None
     signature: str | None
+    company: str | None
+    career: str | None
+    home_url: str | None
+    github: str | None
 
     @validator("username")
     def check_name(cls, val: str) -> str:
         if not re.match(username_pattern, val):
             raise ValueError("只能是字母汉字和数字,且不能以数字开头的4-12字符之间")
+        user = current_user.get()
         if name_existed(val):
+            if user and user.username == val:
+                raise ValueError("昵称与你现在的昵称相同")
             raise ValueError("昵称已存在")
         return val
 
@@ -194,4 +202,48 @@ class ChangeUser(BaseModel):
     def check_email(cls, val: str) -> str:
         if val and not re.match(email_pattern, val):
             raise ParameterException(message="电子邮箱格式错误")
+        return val
+
+    @validator("birthday")
+    def check_birthday(cls, val: date) -> date:
+        if val and val > datetime.now(tz=UTC).date():
+            raise ParameterException(message="生日设置错误")
+        return val
+
+    @validator("address")
+    def check_address(cls, val: str) -> str:
+        if val and len(val) > 100:
+            raise ParameterException(message="地址过长")
+        return val
+
+    @validator("signature")
+    def check_signature(cls, val: str) -> str:
+        if val and len(val) > 200:
+            raise ParameterException(message="签名过长")
+        return val
+
+    @validator("company")
+    def check_company(cls, val: str) -> str:
+        if val and len(val) > 50:
+            raise ParameterException(message="公司名称过长")
+        return val
+
+    @validator("career")
+    def check_career(cls, val: str) -> str:
+        if val and len(val) > 50:
+            raise ParameterException(message="职业名称过长")
+        return val
+
+    @validator("home_url")
+    def check_home_url(cls, val: str) -> str:
+        url_pattern = r"^https?://[^\s]+$"
+        if val and not re.match(url_pattern, val):
+            raise ParameterException(message="个人主页格式错误")
+        return val
+
+    @validator("github")
+    def check_github(cls, val: str) -> str:
+        github_url_pattern = r"^https?://github.com/[^\s]+$"
+        if val and not re.match(github_url_pattern, val):
+            raise ParameterException(message="github格式错误")
         return val
