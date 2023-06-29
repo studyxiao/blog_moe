@@ -8,6 +8,7 @@ from app.core.log import Logger
 from app.core.model import db
 from config import config
 
+from .article.api import bp as article_bp
 from .user.api import bp as user_bp
 
 app = Flask(__name__)
@@ -30,5 +31,6 @@ app.register_error_handler(HTTPException, error_handler_http)
 # 路由
 api_bp = Blueprint("api", __name__, url_prefix="/api/v1")
 api_bp.register_blueprint(user_bp)
+api_bp.register_blueprint(article_bp)
 
 app.register_blueprint(api_bp)

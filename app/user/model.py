@@ -122,3 +122,11 @@ def clear_name_cache(name: str) -> None:
     """清除昵称缓存."""
     node = NameNode(name)
     cache.remove(node, "redis")
+
+
+def user_existed(id: int) -> bool:
+    """检查用户是否存在."""
+    user = User.get_by_attr(User.id == id, User.is_deleted == 0)
+    if user:
+        return True
+    return False

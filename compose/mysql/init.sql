@@ -119,10 +119,11 @@ CREATE TABLE `article_like` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT '文章点赞表';
 
 CREATE TABLE `article_tag` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键 ID',
     `article_id` bigint(20) unsigned NOT NULL COMMENT '文章 ID',
     `tag_id` bigint(20) unsigned NOT NULL COMMENT '标签 ID',
     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`article_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COMMENT '文章内容表';
 
 CREATE TABLE `file` (

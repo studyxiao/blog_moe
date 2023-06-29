@@ -1,10 +1,14 @@
-from typing import Any
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import TEXT, Index, String, delete, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.auth.model import User
-from app.core.model import BaseModel, T_create_time, T_id, T_update_time, session
+from app.core.model import BaseModel, T_create_time, T_update_time, session
+
+if TYPE_CHECKING:
+    from app.article.shema import TagSchema
 
 
 class Category(BaseModel):
@@ -13,8 +17,8 @@ class Category(BaseModel):
     banner: Mapped[str] = mapped_column(String(255), default=None, comment="背景图")
     sort: Mapped[int] = mapped_column(default=1, comment="排序")
     status: Mapped[int] = mapped_column(default=1, comment="状态: 1可见, 0-不可见")
-    create_time: Mapped[T_create_time] = mapped_column(default=None, comment="创建时间")
-    update_time: Mapped[T_update_time] = mapped_column(default=None, comment="更新时间")
+    create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
+    update_time: Mapped[T_update_time] = mapped_column(default_factory=datetime.utcnow)
     is_deleted: Mapped[int] = mapped_column(default=0, comment="是否删除, 0-未删除, 1-已删除")
 
     __tableargs__ = (Index("name_del", "name", "is_deleted", unique=True),)
@@ -22,7 +26,7 @@ class Category(BaseModel):
 
 class Tag(BaseModel):
     name: Mapped[str] = mapped_column(String(32), comment="标签名称")
-    create_time: Mapped[T_create_time] = mapped_column(default=None, comment="创建时间")
+    create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
 
 
 class ArticleTag(BaseModel):
@@ -33,7 +37,7 @@ class ArticleTag(BaseModel):
 class ArticleLike(BaseModel):
     user_id: Mapped[int] = mapped_column(comment="用户 id")
     article_id: Mapped[int] = mapped_column(comment="文章 id")
-    create_time: Mapped[T_create_time] = mapped_column(default=None, comment="创建时间")
+    create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
 
 
 class Article(BaseModel):
@@ -48,13 +52,13 @@ class Article(BaseModel):
     status: Mapped[int] = mapped_column(default=1, comment="状态: 1可见, 0-不可见,2-作者置顶, 3-管理员置顶")
     sort: Mapped[int] = mapped_column(default=1, comment="排序")
     allow_comment: Mapped[int] = mapped_column(default=1, comment="是否允许评论: 1-允许, 0-不允许")
-    create_time: Mapped[T_create_time] = mapped_column(default=None, comment="创建时间")
-    update_time: Mapped[T_update_time] = mapped_column(default=None, comment="更新时间")
+    create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
+    update_time: Mapped[T_update_time] = mapped_column(default_factory=datetime.utcnow)
     is_deleted: Mapped[int] = mapped_column(default=0, nullable=False, comment="是否删除,0-未删除, 1-已删除")
 
-    view_count: Mapped[int] = mapped_column(default=0, comment="文章浏览量")
-    like_count: Mapped[int] = mapped_column(default=0, comment="点赞量")
-    comment_count: Mapped[int] = mapped_column(default=0, comment="评论数")
+    # TODO view_count: Mapped[int] = mapped_column(default=0, comment="文章浏览量")
+    # TODO like_count: Mapped[int] = mapped_column(default=0, comment="点赞量")
+    # TODO comment_count: Mapped[int] = mapped_column(default=0, comment="评论数")
 
     __tableargs__ = (Index("name", "name"), Index("status", "status"))
 
@@ -71,14 +75,14 @@ class Article(BaseModel):
         return res
 
     @tags.setter
-    def tags(self, data: list[dict[str, Any]]) -> None:
+    def tags(self, data: list["TagSchema"]) -> None:
         with session:
             new_tags = set()
             old_tags = set()
             for item in data:
-                _tag = Tag.get_by_attr(name=item["name"])
+                _tag = Tag.get_by_attr(name=item.name)
                 if _tag is None:
-                    _tag = Tag(name=item["name"])
+                    _tag = Tag(name=item.name)
                     session.add(_tag)
                     session.refresh(_tag)
                 new_tags.add(_tag.id)
@@ -119,7 +123,7 @@ class Article(BaseModel):
 class File(BaseModel):
     """暂时不需要."""
 
-    id: Mapped[T_id] = mapped_column(init=False)
+    __abstract__ = True
     md5: Mapped[str] = mapped_column(comment="唯一标识")
     user_id: Mapped[int] = mapped_column(comment="用户 id")
     path: Mapped[str] = mapped_column(String(100), comment="路径或 url")
@@ -127,8 +131,8 @@ class File(BaseModel):
     location: Mapped[int] = mapped_column(default=1, comment="文件保存位置: 1-本地, 2-云")
     type: Mapped[int] = mapped_column(default=0, comment="文件类型: 0-未知, 1-图片, 2-视频, 3-音频")  # noqa：A003
     ext: Mapped[str] | None = mapped_column(default=None, comment="后缀")
-    create_time: Mapped[T_create_time] = mapped_column(default=None, comment="创建时间")
-    update_time: Mapped[T_update_time] = mapped_column(default=None, comment="更新时间")
+    create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
+    update_time: Mapped[T_update_time] = mapped_column(default_factory=datetime.utcnow)
 
     __tableargs__ = (Index("user_file", "user_id", "md5"),)
 
@@ -146,11 +150,11 @@ class Comment(BaseModel):
     device: Mapped[str] = mapped_column(String(20), default="", comment="设备")
 
     status: Mapped[int] = mapped_column(default=1, comment="状态: 1-正常, 0-不显示, 2-作者置顶, 3-管理员置顶")
-    create_time: Mapped[T_create_time] = mapped_column(default=None, comment="创建时间")
+    create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
     is_deleted: Mapped[int] = mapped_column(default=0, comment="是否删除,0-未删除, 1-已删除")
 
 
 class CommentLike(BaseModel):
     user_id: Mapped[int] = mapped_column()
     comment_id: Mapped[int] = mapped_column()
-    create_time: Mapped[T_create_time] = mapped_column(default=None, comment="创建时间")
+    create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
