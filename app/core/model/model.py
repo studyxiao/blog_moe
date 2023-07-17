@@ -106,6 +106,12 @@ class BaseModel(MappedAsDataclass, DeclarativeBase):
         """
         return delete(cls)
 
+    def delete_by_self(self) -> None:
+        """删除."""
+        with session:
+            session.delete(self)
+            session.commit()
+
     def to_dict(self, exclude_field: set[str] | None = None) -> dict[str, Any]:
         self.__exclude_field = exclude_field or set()
         res = asdict(self, dict_factory=self.dict_factory)

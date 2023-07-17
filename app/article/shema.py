@@ -6,7 +6,7 @@ from pydantic import BaseModel, validator
 from app.article.controller import category_existed, create_tag, tag_existed
 from app.core.schema import PageSchema
 from app.user.model import user_existed
-from app.util.const import Source
+from app.util.const import Publish, Source
 
 
 class FilterSchema(BaseModel):
@@ -82,6 +82,16 @@ class TagSchema(BaseModel):
     id: int | None
     name: str
 
+    @validator("name")
+    def check_name(cls, val: str) -> str:
+        if not val or val.strip() == "":
+            raise ValueError("标签名不能为空")
+        return val
+
+
+class CategorySchema(TagSchema):
+    pass
+
 
 class ArticleCreateSchema(BaseModel):
     title: str
@@ -90,7 +100,7 @@ class ArticleCreateSchema(BaseModel):
     cover: str | None
     category_id: int = 0
     tags: list[TagSchema] | None
-    publish: int = 1
+    publish: int = Publish.PUBLISH.value
     source: int = Source.YUANCHUANG.value
 
     @validator("title")
@@ -146,7 +156,7 @@ class ArticleCreateSchema(BaseModel):
 
     @validator("publish")
     def check_publish(cls, val: int) -> int:
-        if val not in [0, 1, 2]:
+        if val not in Publish.__members__.values():
             raise ValueError("发布状态不存在")
         return val
 
@@ -154,4 +164,43 @@ class ArticleCreateSchema(BaseModel):
     def check_source(cls, val: int) -> int:
         if val not in Source.__members__.values():
             raise ValueError("来源不存在")
+        return val
+
+
+class CommentListSchema(PageSchema):
+    root_id: int | None
+
+    @validator("root_id")
+    def check_root_id(cls, val: int | None) -> int | None:
+        if val is None or val <= 0:
+            return None
+        return val
+
+
+class CommentSchema(BaseModel):
+    content: str
+    root_id: int | None
+    parent_id: int | None
+
+    @validator("content")
+    def check_content(cls, val: str) -> str:
+        if not val or val.strip() == "":
+            raise ValueError("评论内容不能为空")
+        if len(val) > 400:
+            raise ValueError("评论内容不能超过400个字符")
+        return val
+
+    @validator("root_id")
+    def check_root_id(cls, val: int | None) -> int | None:
+        if val is None or val <= 0:
+            return None
+        return val
+
+    @validator("parent_id")
+    def check_parent_id(cls, val: int | None, values: dict[str, Any]) -> int | None:
+        if val is None and values.get("root_id") is not None:
+            raise ValueError("父评论不能为空")
+        if val is None or val <= 0:
+            return None
+
         return val

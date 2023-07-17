@@ -143,15 +143,65 @@ class Comment(BaseModel):
     content: Mapped[str] = mapped_column(String(400), comment="评论内容")
     root_id: Mapped[int] = mapped_column(default=0, comment="所属根评论 id, 0表示本身就是根评论")
     parent_id: Mapped[int] = mapped_column(default=0, comment="所属父评论 id, 0-表示本身就是根评论, 没有父级")
-    replay_count: Mapped[int] = mapped_column(default=0, comment="如果是 root, 需要统计它的回复数量")
+    reply_count: Mapped[int] = mapped_column(default=0, comment="如果是 root, 需要统计它的回复数量")
 
     ip: Mapped[str] = mapped_column(String(16), default=None, comment="ip 地址")
-    platform: Mapped[str] = mapped_column(String(20), default="", comment="客户端")
-    device: Mapped[str] = mapped_column(String(20), default="", comment="设备")
 
     status: Mapped[int] = mapped_column(default=1, comment="状态: 1-正常, 0-不显示, 2-作者置顶, 3-管理员置顶")
     create_time: Mapped[T_create_time] = mapped_column(default_factory=datetime.utcnow)
     is_deleted: Mapped[int] = mapped_column(default=0, comment="是否删除,0-未删除, 1-已删除")
+
+    # 按照 root 获取第一层评论,然后获取第二层评论
+    @classmethod
+    def get_children_by_root_id(cls, root_id: int, page: int = 0, count: int = 30) -> list[dict[str, Any]]:
+        """获取子评论."""
+        res = []
+        with session:
+            _comments = session.scalars(
+                select(Comment)
+                .where(Comment.root_id == root_id, Comment.is_deleted == 0)
+                .offset((page) * count)
+                .limit(count)
+            ).all()
+            for item in _comments:
+                res.append(item.to_dict())
+        return res
+
+    @classmethod
+    def get_comment_by_article_id(cls, article_id: int, page: int = 0, count: int = 30) -> list[dict[str, Any]]:
+        """获取文章评论.
+
+        1. 获取文章的 root 评论
+        2. 获取 root 评论的子评论
+        """
+        res = []
+        with session:
+            _comments = session.scalars(
+                select(Comment)
+                .where(
+                    Comment.root_id == 0,
+                    Comment.article_id == article_id,
+                    Comment.is_deleted == 0,
+                )
+                .offset((page) * count)
+                .limit(count)
+            ).all()
+            for item in _comments:
+                root_comment = item.to_dict()
+                root_comment["children"] = cls.get_children_by_root_id(item.id)
+                res.append(root_comment)
+        return res
+
+    @property
+    def user(self) -> dict[str, Any]:
+        user = User.get_by_id(self.user_id)
+        if user is None:
+            return {}
+        return {
+            "id": user.id,
+            "username": user.username,
+            "avatar": user.avatar,
+        }
 
 
 class CommentLike(BaseModel):
